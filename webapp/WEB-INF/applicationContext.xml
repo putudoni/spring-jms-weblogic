@@ -2,10 +2,40 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:jee="http://www.springframework.org/schema/jee"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans
 	http://www.springframework.org/schema/beans/spring-beans.xsd
 	http://www.springframework.org/schema/context
-	http://www.springframework.org/schema/context/spring-context.xsd">
+	http://www.springframework.org/schema/context/spring-context.xsd
+	http://www.springframework.org/schema/jee
+	http://www.springframework.org/schema/jee/spring-jee-3.0.xsd">
 
+	<bean id="jndiTemplate" class="org.springframework.jndi.JndiTemplate">
+		<property name="environment">
+			<props>
+				<prop key="java.naming.factory.initial">weblogic.jndi.WLInitialContextFactory</prop>
+				<prop key="java.naming.provider.url">t3://localhost:7001</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<bean id="jmsDestinationResolver" class="org.springframework.jms.support.destination.JndiDestinationResolver">
+		<property name="jndiTemplate" ref="jndiTemplate"/>
+		<property name="cache" value="true"/>
+	</bean>
+	
+	<bean id="connectionFactory" class="org.springframework.jndi.JndiObjectFactoryBean">
+		<property name="jndiTemplate" ref="jndiTemplate"/> 
+		<property name="jndiName" value="jms/SpringConnectionFactory01"/>
+	</bean>
+	
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory" ref="connectionFactory"/>
+		<property name="destinationResolver" ref="jmsDestinationResolver"/>
+	</bean>
+
+	<bean id="messageSender" class="com.pnwd.spring.jms.service.MessageSender">
+		<property name="jmsTemplate" ref="jmsTemplate"/>
+	</bean>
 	
 </beans>
