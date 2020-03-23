@@ -38,4 +38,18 @@
 		<property name="jmsTemplate" ref="jmsTemplate"/>
 	</bean>
 	
+	<bean id="messageReceiver" class="com.pnwd.spring.jms.service.MessageReceiver"/>
+	
+	<bean id="springQueue01" class="org.springframework.jndi.JndiObjectFactoryBean">
+		 <property name="jndiTemplate" ref="jndiTemplate"/>
+		 <property name="jndiName" value="jms/springQueue01"/>
+	 </bean>
+	
+	<bean id="messageReceiverlistener" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+		<property name="concurrentConsumers" value="5" />
+		<property name="connectionFactory" ref="connectionFactory" />
+		<property name="destination" ref="springQueue01" />
+		<property name="messageListener" ref="messageReceiver" />
+	</bean>
+	
 </beans>
